@@ -11,7 +11,7 @@ This module allows you to:
 2 > add prefab, just like any other rendering, to any page  
     ... in fact any language, version, device, placeholder path, etc
 
-View demo screenshots in [the wiki](https://github.com/digitalParkour/Community.Foundation.Prefabs/wiki)
+[View demo screenshots in the wiki](https://github.com/digitalParkour/Community.Foundation.Prefabs/wiki).
 
 This was built and tested with Sitecore 8.2 update 5, MVC only. There is a **general release** and an **SXA supported release**.
 
