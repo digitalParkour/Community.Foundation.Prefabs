@@ -1,0 +1,14 @@
+﻿---
+ID: "4546df1a-98dd-4b80-b211-b8984197e900"
+Parent: "08477468-d438-43d4-9d6a-6d84a611971c"
+Template: "87e7d392-0519-465c-bd05-791ec37db180"
+Path: /sitecore/system/Modules/Prefabs
+DB: master
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20171113T202440Z

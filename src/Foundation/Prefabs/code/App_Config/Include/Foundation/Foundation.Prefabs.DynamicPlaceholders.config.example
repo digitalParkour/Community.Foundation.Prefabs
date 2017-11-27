@@ -1,0 +1,45 @@
+<configuration xmlns:patch="http://www.sitecore.net/xmlconfig/" xmlns:set="http://www.sitecore.net/xmlconfig/set/">
+    <sitecore>
+        
+        <!--
+        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        ++  Update Dynamic Placeholders so they do not conflict with target page
+        ++ ===========================================================================
+        ++  > This default implementation is based on a method where the component exposing the dynamic placeholder uses a Rendering Parameter to store an integer as the dynamic id.
+        ++  > Replace/Remove the pipeline processor below if you are using an alternate implemenation
+        ++          NOTE: if you are using unique guids instead of integers you may think this step is unnecessary, 
+        ++                but you do need to handle the case of the same prefab being added twice... so you will need to create new guids
+        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        -->
+
+        <settings>
+            <setting name="Prefabs.DynamicPlaceholder.RenderingParameterName" value="DynamicPlaceholderId"/><!-- ** SET THIS TO YOUR PARAM NAME -->
+        </settings>
+        
+        <foundation.prefabs>
+            <!-- 
+                List all your renderings that render dynamic placeholders.
+                Define the prefix and suffix if needed for the id format (regex matches are allowed)
+            -->
+            <dynamicPlaceholders type="Community.Foundation.Prefabs.Configuration.DynamicPlaceholders, Community.Foundation.Prefabs">
+                <mappings hint="raw:AddMapping">
+                    <!-- Example:
+                    <ReadableName renderingId="{guid}" prefixPattern="optional-regex" suffixPattern="optional-regex"/>
+                    -->
+                </mappings>
+            </dynamicPlaceholders>
+        </foundation.prefabs>
+        <pipelines>
+            <!-- Extend/Replace if needed -->
+            <createPrefab>
+                <processor patch:before="processor[@type='Community.Foundation.Prefabs.Pipelines.CreatePrefab.FillPrefab, Community.Foundation.Prefabs']" 
+                           type="Community.Foundation.Prefabs.Pipelines.CreatePrefab.MapDynamicPlaceholders, Community.Foundation.Prefabs" />
+            </createPrefab>
+            <prefabApplyRenderings>
+                <processor type="Community.Foundation.Prefabs.Pipelines.PrefabApplyRenderings.MapDynamicPlaceholders, Community.Foundation.Prefabs" />
+            </prefabApplyRenderings>
+        </pipelines>
+
+
+    </sitecore>
+</configuration>

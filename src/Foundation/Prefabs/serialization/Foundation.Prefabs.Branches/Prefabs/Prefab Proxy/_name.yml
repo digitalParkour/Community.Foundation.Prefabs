@@ -1,0 +1,31 @@
+﻿---
+ID: "483e3f56-368a-4530-b62f-b04f0bc7631c"
+Parent: "debb5c91-8ae8-465e-9cd1-bb71b1639c6d"
+Template: "39587d7d-f06d-4cb4-a25e-aa7d847eddd0"
+Path: /sitecore/templates/Branches/Foundation/Prefabs/Prefab Proxy/$name
+DB: master
+SharedFields:
+- ID: "06d5295c-ed2f-4a54-9bf2-26228d113318"
+  Hint: __Icon
+  Value: Office/32x32/pci_card.png
+- ID: "67cf836a-d8da-41c4-89aa-60226864c1ce"
+  Hint: Assembly
+  Value: Community.Foundation.Prefabs
+- ID: "ba2c331e-89a7-4d46-ac29-7d444801caf6"
+  Hint: Class
+  Value: Community.Foundation.Prefabs.Rendering.MethodRendering
+- ID: "ba5e7b23-491e-40c6-a7f4-931101255077"
+  Hint: Method
+  Value: ProxyItem
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20171114T224923Z
+    - ID: "5dd74568-4d4b-44c1-b513-0af5f4cda34f"
+      Hint: __Created by
+      Value: |
+        sitecore\jgregory

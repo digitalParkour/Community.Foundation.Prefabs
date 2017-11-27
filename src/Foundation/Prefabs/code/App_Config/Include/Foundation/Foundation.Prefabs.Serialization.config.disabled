@@ -1,0 +1,25 @@
+<configuration xmlns:patch="http://www.sitecore.net/xmlconfig/">
+  <sitecore>
+    <unicorn>
+    <!-- Unicorn 4.0 -->
+      <configurations>
+        <configuration name="Foundation.Prefabs" dependencies="Foundation.Serialization">
+            <targetDataStore physicalRootPath="$(sourceFolder)\$(layer)\$(module)\serialization" />
+            <predicate>
+                <include name="$(layer).$(module).Templates" database="master" path="/sitecore/templates/$(layer)/$(module)" />
+                <include name="$(layer).$(module).Branches" database="master" path="/sitecore/templates/Branches/$(layer)/$(module)" />
+                <include name="$(layer).$(module).Layout" database="master" path="/sitecore/layout/Layouts/$(layer)/$(module)" />
+                <include name="$(layer).$(module).Renderings" database="master" path="/sitecore/layout/renderings/$(layer)/$(module)">
+                    <exclude children="true" />
+                </include>
+                <include name="$(layer).$(module).InsertOption" database="master" path="/sitecore/system/Settings/Rules/Insert Options/Rules/Prefabs Rendering Option" />
+                <include name="$(layer).$(module).Module" database="master" path="/sitecore/system/Modules/$(module)">
+                    <exclude children="true" />
+                </include>
+                <include name="$(layer).$(module).RenderingButton" database="core" path="/sitecore/content/Applications/WebEdit/Default Rendering Buttons/Make Prefab" />
+            </predicate>
+        </configuration>
+      </configurations>
+    </unicorn>
+  </sitecore>
+</configuration>

@@ -1,0 +1,136 @@
+<configuration xmlns:patch="http://www.sitecore.net/xmlconfig/" xmlns:set="http://www.sitecore.net/xmlconfig/set/">
+    <sitecore>
+
+        <settings>
+            <!-- 
+                Toggle off if you are not using SXA (or disable this config) 
+                Default: "false"
+                -->
+            <setting name="Prefabs.Sxa.SupportEnabled" value="true" />
+
+            <!-- 
+                When true, a "Prefabs" item will automatically be created under (site)/Presenation/Available Renderings/ for every site the first time a prefab is created (using UI).
+                This allows the new prefab to show in the SXA toolbox.
+                
+                Set to false if you have one or more sites that you do not want prefabs to show in the SXA toolbox or Experience Editor Add Component dialog.
+                When false...
+                    > Manually ensure sites (which you want to have the toolbox display new prefabs) have an item named "Prefabs" under (site)/Presenation/Available Renderings/
+                    > Manually ensure sites (which you do NOT want to have prefabs in the toolbox) do NOT have an item named "Prefabs" under (site)/Presenation/Available Renderings/
+                    
+                Default: "true"
+                -->
+            <setting name="Prefabs.Sxa.AutoAllowPrefabs" value="true" />
+
+            <!--
+                SXA needs a site context for Experience Editor; provide a fallback site name here when in global context.
+                If blank it just uses the first known SXA site.
+                Default: (blank)
+                NOTE: With SXA 1.5 you may consider setting up a site named Global, then change "Prefabs.GlobalPath" setting to point to a Prefabs folder under (site)/Data
+                -->
+            <setting name="Prefabs.Sxa.GlobalSiteNameOverride" value="" />
+
+            <!--
+                Use SXA's Rendering Parameter name (integer id stored on rendering to use as suffix for nested renderings' placeholder path)
+                Default: DynamicPlaceholderId
+                -->
+            <setting name="Prefabs.DynamicPlaceholder.RenderingParameterName" set:value="DynamicPlaceholderId"/>
+        </settings>
+
+        <pipelines>
+            <!--
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ++  SXA introduces Drag&Drop Toolbox in Experience Editor, and tabbed Add Component dialog... register new Prefabs for toolbox and dialog
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            -->
+            <createPrefab>
+                <processor type="Community.Foundation.Prefabs.Pipelines.CreatePrefab.SxaRegisterRendering, Community.Foundation.Prefabs" />
+            </createPrefab>
+            <!--
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ++  ... and remove generic prefabs getPlaceholderRenderings processor, since we don't need it for SXA
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            -->
+            <getPlaceholderRenderings>
+                <processor type="Community.Foundation.Prefabs.Pipelines.GetPlaceholderRenderings.GetAllPrefabs, Community.Foundation.Prefabs">
+                    <patch:delete />
+                </processor>
+            </getPlaceholderRenderings>
+
+            <!--
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ++  SXA introduces custom datasource format... resolve to normal IDs so authors can rename data items
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            -->
+            <createPrefab>
+                <processor patch:after="processor[@type='Community.Foundation.Prefabs.Pipelines.CreatePrefab.GetRenderings, Community.Foundation.Prefabs']"
+                           type="Community.Foundation.Prefabs.Pipelines.CreatePrefab.SxaResolveDatasources, Community.Foundation.Prefabs" />
+            </createPrefab>
+            <prefabApplyRenderings>
+                <processor patch:before="*[1]" type="Community.Foundation.Prefabs.Pipelines.PrefabApplyRenderings.SxaResolveDatasources, Community.Foundation.Prefabs" />
+            </prefabApplyRenderings>
+
+            <!--
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ++  SXA only support Experience Editor for items under an SXA site node. Handle global editing fallback here
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            -->
+            <ioc>
+                <processor type="Community.Foundation.Prefabs.IoC.GlobalMultisiteServices, Community.Foundation.Prefabs"/>
+            </ioc>
+        </pipelines>
+
+
+        <!--
+        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        ++  Handle Sxa Dynamic Placeholders so they do not conflict with target page
+        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        -->
+        <foundation.prefabs>
+            <!-- 
+                Given a rendering definition item, we need to know the placeholders it exposes so we know which paths may be affected.
+                Currently only supports one mapping per renderingId
+                This uses regex patterns to match placeholders
+            -->
+            <dynamicPlaceholders type="Community.Foundation.Prefabs.Configuration.DynamicPlaceholders, Community.Foundation.Prefabs">
+                <mappings hint="raw:AddMapping">
+                    <!-- Example:
+                    <Hint renderingId="{guid}" prefixPattern="optional-regex" suffixPattern="optional-regex"/>
+                    -->
+
+                    <!-- SXA -->
+                    <!--<Slideshow renderingId="{69ABD4D0-EAC0-4E57-A892-09F500B6709F}" prefixPattern="-"/>
+                    <Accordion renderingId="{DEE8DDA7-AF00-48F6-9C60-19AB73EBA80D}" prefixPattern="-"/>
+                    <Carousel renderingId="{5A21C781-8E74-4DD0-8261-8CCDA1BF0454}" prefixPattern="-"/>
+                    <Tabs renderingId="{886B8CCC-816E-4D3A-BF05-4876B6C23686}" prefixPattern="-"/>
+                    <Flip renderingId="{00C953FE-D508-4836-96A4-CF60887AE5F1}" prefixPattern="-"/>-->
+                    <FormWrapper renderingId="{8C00D7C3-0A17-4A36-88A3-FFCB7BD2CCF5}" prefixPattern="mvcform-"/>
+                    <Promo renderingId="{51C13F03-8364-4F61-B860-2EC6CA7439B3}" prefixPattern="promo-"/>
+                    <PageList renderingId="{2E991AA4-4B08-43D2-AD2B-17C11E69A499}" prefixPattern="pagelist-"/>
+                    <Toggle renderingId="{60A49017-0BB4-4D92-AB59-587E6C618B30}" prefixPattern="toggle-"/>
+                    <Container renderingId="{896A2C68-1362-4E88-8BA0-1805AE6D4837}" prefixPattern="container-"/>
+                    <ColumnSplitter renderingId="{C25766C8-9AFD-4D28-87FE-147774F6806D}" prefixPattern="column-\d+-"/>
+                    <RowSplitter renderingId="{2DA9B139-FB9C-4FD7-BE84-CB066B2D7CC3}" prefixPattern="row-\d+-"/>
+                    <EditModePanel renderingId="{FE0F0660-13A7-4AC0-A71A-6CBFE2D158BE}" prefixPattern="edit-panel-"/>
+                    <SocialLoginWrapper renderingId="{CC2EB160-8FA6-4894-B599-2CEE7FC76820}" prefixPattern="social-login-"/>
+                    <!--<Placeholder renderingId="{37217232-C2E8-45FB-9296-6DBBFD53ACCE}" prefixPattern="-"/>
+                    <ServiceCollection renderingId="{6BD1186A-AE0E-4C6C-964B-70C7D6648BBE}" prefixPattern="-"/>-->
+
+                    <!-- Custom -->
+                    <Section renderingId="{50A77A1E-EF2E-4103-8270-AF1D3E8F0BD8}" prefixPattern="section-"/>
+                    <!--<ResponsiveTabs renderingId="{8F505DDD-8C08-4F48-B62E-7E3BE83287BF}"/>
+                    <CustomAccordion renderingId="{8670641A-75B4-4B72-B256-B7565646A792}"/>-->
+                </mappings>
+            </dynamicPlaceholders>
+        </foundation.prefabs>
+        <pipelines>
+            <createPrefab>
+                <processor patch:before="processor[@type='Community.Foundation.Prefabs.Pipelines.CreatePrefab.FillPrefab, Community.Foundation.Prefabs']"
+                           type="Community.Foundation.Prefabs.Pipelines.CreatePrefab.MapSxaDynamicPlaceholders, Community.Foundation.Prefabs" />
+            </createPrefab>
+            <prefabApplyRenderings>
+                <processor patch:before="*[1]" type="Community.Foundation.Prefabs.Pipelines.PrefabApplyRenderings.MapSxaDynamicPlaceholders, Community.Foundation.Prefabs" />
+            </prefabApplyRenderings>
+        </pipelines>
+
+    </sitecore>
+</configuration>
