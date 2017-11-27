@@ -19,9 +19,9 @@ Setup
 --------------
 Either:
 * Install Sitecore package:  
-	\releases\Community.Foundation.Prefabs-*.zip (for **general release**)  
+	\releases\Community.Foundation.Prefabs-\*.zip (for **general release**)  
 	OR  
-	\releases\Community.Foundation.Prefabs-*.SXA.zip (for **sxa supported release**)  
+	\releases\Community.Foundation.Prefabs-\*.SXA.zip (for **sxa supported release**)  
 		- Same as general with only two differences  
 			> Foundation.Prefabs.Sxa.config is enabled  
 			> "Prefab" data template inherits "_SXA support" template for Experience Editor compatibility (SXA rendering parameter options don't work unless item inherits SXA page)
