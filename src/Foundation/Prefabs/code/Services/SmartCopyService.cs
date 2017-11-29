@@ -1,4 +1,6 @@
 ﻿using Community.Foundation.Prefabs.Abstractions.Services;
+using Community.Foundation.Prefabs.Configuration;
+using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
@@ -14,6 +16,7 @@ namespace Community.Foundation.Prefabs.Services
     public class SmartCopyService : ISmartCopyService
     {
         protected const string GuidPattern = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+        protected const string SxaLocalPattern = "\"local:[^\"]*\"";
 
         #region MapIdFields
 
@@ -53,6 +56,36 @@ namespace Community.Foundation.Prefabs.Services
                         commitEdit = true;
                         referenceCopy[field.ID] = referenceCopy[field.ID].Replace(linkedItem.ID.ToString().Trim(new[] { '{', '}' }), mappedId.ToString().Trim(new[] { '{', '}' }));
 
+                    }
+
+                    // Handle nested SXA Composite item layout field... "local:" datasources
+                    if(Config.Sxa.IsEnabled && (field.ID.Equals(FieldIDs.LayoutField) || field.ID.Equals(FieldIDs.FinalLayoutField)))
+                    { 
+                        var locals = Regex.Matches(rawValue, SxaLocalPattern);
+                        foreach (Match match in locals)
+                        {
+                            if (match.Value.Length <= "'local:'".Length)
+                                continue;
+
+                            var localPath = StringUtil.EnsurePrefix('/', match.Value.Trim('"').Substring("local:".Length)).TrimEnd('/');
+                            var linkedPath = $"{referenceItem.Paths.Path}{localPath}";
+                            var linkedItem = db.GetItem(linkedPath);
+                            if (linkedItem == null)
+                                continue;
+
+                            // Map ID
+                            var mappedPath = $"{referenceCopy.Paths.Path}{localPath}";
+                            var mappedItem = db.GetItem(mappedPath);
+                            if (mappedItem == null)
+                                continue;
+                            var mappedId = mappedItem.ID;
+
+                            // Replace linking ID with mapped ID
+                            commitEdit = true;
+                            var replacement = $"\"{mappedId.ToString()}\"";
+                            referenceCopy[field.ID] = referenceCopy[field.ID].Replace(match.Value, replacement);
+
+                        }
                     }
                 }
             }
